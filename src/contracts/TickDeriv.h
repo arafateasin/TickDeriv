@@ -1,12 +1,12 @@
 using namespace QPI;
 
-#define ROUND_DURATION 20
-#define MIN_BET 1000000ULL
-#define MAX_BET 1000000000ULL
-#define MAX_BETS_PER_ROUND 128
-#define HISTORY_SIZE 8
-#define HOUSE_FEE_BPS 200
-#define BASIS_POINTS 10000
+constexpr uint32 ROUND_DURATION = 20;
+constexpr uint64 MIN_BET = 1000000;
+constexpr uint64 MAX_BET = 1000000000;
+constexpr uint32 MAX_BETS_PER_ROUND = 128;
+constexpr uint32 HISTORY_SIZE = 8;
+constexpr uint32 HOUSE_FEE_BPS = 200;
+constexpr uint32 BASIS_POINTS = 10000;
 
 namespace RoundState
 {
