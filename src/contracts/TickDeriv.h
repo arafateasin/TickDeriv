@@ -1,15 +1,12 @@
 using namespace QPI;
 
-namespace Config
-{
-    constexpr uint32 ROUND_DURATION = 20;
-    constexpr uint64 MIN_BET = 1000000;
-    constexpr uint64 MAX_BET = 1000000000;
-    constexpr uint32 MAX_BETS_PER_ROUND = 128;
-    constexpr uint32 HISTORY_SIZE = 8;
-    constexpr uint32 HOUSE_FEE_BPS = 200;
-    constexpr uint32 BASIS_POINTS = 10000;
-}
+#define ROUND_DURATION 20
+#define MIN_BET 1000000ULL
+#define MAX_BET 1000000000ULL
+#define MAX_BETS_PER_ROUND 128
+#define HISTORY_SIZE 8
+#define HOUSE_FEE_BPS 200
+#define BASIS_POINTS 10000
 
 namespace RoundState
 {
@@ -56,12 +53,12 @@ struct BetRecord
 struct TickDerivState
 {
     Round currentRound;
-    Array<Round, Config::HISTORY_SIZE> history;
+    Array<Round, HISTORY_SIZE> history;
     uint32 historyWriteIndex;
     uint32 totalRoundsCount;
     uint64 totalVolumeAllTime;
     uint64 totalPayoutsAllTime;
-    Array<BetRecord, Config::MAX_BETS_PER_ROUND> currentBets;
+    Array<BetRecord, MAX_BETS_PER_ROUND> currentBets;
     uint32 currentBetCount;
     Array<BetRecord, 1024> allBets;
     uint32 allBetsCount;
@@ -99,13 +96,13 @@ public:
 
         uint64 betAmount = qpi.invocationReward();
 
-        if (betAmount < Config::MIN_BET || betAmount > Config::MAX_BET)
+        if (betAmount < MIN_BET || betAmount > MAX_BET)
         {
             qpi.transfer(qpi.invocator(), betAmount);
             return;
         }
 
-        if (state.currentBetCount >= Config::MAX_BETS_PER_ROUND)
+        if (state.currentBetCount >= MAX_BETS_PER_ROUND)
         {
             qpi.transfer(qpi.invocator(), betAmount);
             return;
@@ -224,7 +221,7 @@ public:
         }
         else
         {
-            uint64 houseFee = (totalPool * Config::HOUSE_FEE_BPS) / Config::BASIS_POINTS;
+            uint64 houseFee = (totalPool * HOUSE_FEE_BPS) / BASIS_POINTS;
             uint64 poolAfterFee = totalPool - houseFee;
             state.collectedFees = state.collectedFees + houseFee;
 
@@ -274,14 +271,14 @@ public:
         state.totalPayoutsAllTime = state.totalPayoutsAllTime + output.totalPayout;
         output.resolved = true;
 
-        state.history.set(state.historyWriteIndex & (Config::HISTORY_SIZE - 1), state.currentRound);
+        state.history.set(state.historyWriteIndex & (HISTORY_SIZE - 1), state.currentRound);
         state.historyWriteIndex++;
         state.totalRoundsCount++;
 
         uint32 newTick = qpi.tick();
         state.currentRound.id = state.totalRoundsCount + 1;
         state.currentRound.startTick = newTick;
-        state.currentRound.endTick = newTick + Config::ROUND_DURATION;
+        state.currentRound.endTick = newTick + ROUND_DURATION;
         state.currentRound.lockTick = 0;
         
         uint64 seedNewRound = (uint64)newTick;
@@ -322,7 +319,7 @@ public:
 
     struct GetRoundHistory_output
     {
-        Array<Round, Config::HISTORY_SIZE> history;
+        Array<Round, HISTORY_SIZE> history;
         uint32 totalRoundsCount;
         uint32 historySize;
     };
@@ -331,9 +328,9 @@ public:
     {
         output.history = state.history;
         output.totalRoundsCount = state.totalRoundsCount;
-        output.historySize = (state.totalRoundsCount < Config::HISTORY_SIZE)
+        output.historySize = (state.totalRoundsCount < HISTORY_SIZE)
             ? state.totalRoundsCount
-            : Config::HISTORY_SIZE;
+            : HISTORY_SIZE;
     }
 
     struct GetUserBets_input
@@ -343,7 +340,7 @@ public:
 
     struct GetUserBets_output
     {
-        Array<BetRecord, Config::MAX_BETS_PER_ROUND> bets;
+        Array<BetRecord, MAX_BETS_PER_ROUND> bets;
         uint32 betCount;
     };
 
@@ -351,7 +348,7 @@ public:
     {
         output.betCount = 0;
 
-        for (uint32 i = 0; i < state.allBetsCount && output.betCount < Config::MAX_BETS_PER_ROUND; ++i)
+        for (uint32 i = 0; i < state.allBetsCount && output.betCount < MAX_BETS_PER_ROUND; ++i)
         {
             BetRecord bet = state.allBets.get(i);
             if (bet.bettor == input.userAddress)
@@ -501,7 +498,7 @@ public:
         state.currentBetCount = 0;
         state.allBetsCount = 0;
 
-        for (uint32 i = 0; i < Config::HISTORY_SIZE; ++i)
+        for (uint32 i = 0; i < HISTORY_SIZE; ++i)
         {
             Round emptyRound;
             emptyRound.id = 0;
@@ -514,7 +511,7 @@ public:
         uint32 initTick = qpi.tick();
         state.currentRound.id = state.totalRoundsCount + 1;
         state.currentRound.startTick = initTick;
-        state.currentRound.endTick = initTick + Config::ROUND_DURATION;
+        state.currentRound.endTick = initTick + ROUND_DURATION;
         state.currentRound.lockTick = 0;
         
         uint64 seedInit = (uint64)initTick;
@@ -604,7 +601,7 @@ public:
                     }
                     else
                     {
-                        uint64 houseFee = (totalPool * Config::HOUSE_FEE_BPS) / Config::BASIS_POINTS;
+                        uint64 houseFee = (totalPool * HOUSE_FEE_BPS) / BASIS_POINTS;
                         uint64 poolAfterFee = totalPool - houseFee;
                         state.collectedFees = state.collectedFees + houseFee;
 
@@ -652,14 +649,14 @@ public:
                     state.currentRound.totalPayout = totalPayout;
                     state.totalPayoutsAllTime = state.totalPayoutsAllTime + totalPayout;
 
-                    state.history.set(state.historyWriteIndex & (Config::HISTORY_SIZE - 1), state.currentRound);
+                    state.history.set(state.historyWriteIndex & (HISTORY_SIZE - 1), state.currentRound);
                     state.historyWriteIndex++;
                     state.totalRoundsCount++;
 
                     uint32 newTick = qpi.tick();
                     state.currentRound.id = state.totalRoundsCount + 1;
                     state.currentRound.startTick = newTick;
-                    state.currentRound.endTick = newTick + Config::ROUND_DURATION;
+                    state.currentRound.endTick = newTick + ROUND_DURATION;
                     state.currentRound.lockTick = 0;
                     
                     uint64 seedStart = (uint64)newTick;
