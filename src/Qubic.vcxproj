@@ -47,6 +47,7 @@
     <ClInclude Include="contracts\TestExampleB.h" />
     <ClInclude Include="contracts\TestExampleC.h" />
     <ClInclude Include="contracts\TestExampleD.h" />
+    <ClInclude Include="contracts\TickDeriv.h" />
     <ClInclude Include="contract_core\contract_action_tracker.h" />
     <ClInclude Include="contract_core\contract_def.h" />
     <ClInclude Include="contract_core\contract_exec.h" />
